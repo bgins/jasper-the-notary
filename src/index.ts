@@ -1,12 +1,10 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
+import * as ucans from 'ucans'
+import { EdKeypair } from 'ucans/keypair/ed25519'
 
-const didTransformers = require('ucans/did/transformers')
-const ucans = require('ucans')
-const uint8arrays = require('uint8arrays')
-const { EdKeypair } = require('ucans/keypair/ed25519')
+import * as commentary from './commentary'
 
-const commentary = require('./commentary')
 
 const main = async () => {
   const args: string[] = process.argv.slice(2);
@@ -35,7 +33,7 @@ const main = async () => {
   // console.log("keypair", keypair)
 }
 
-const loadKeypair = async (): Promise<typeof EdKeypair> => {
+const loadKeypair = async (): Promise<EdKeypair> => {
   const root = path.resolve(__dirname, '..')
   const keyPath = root + '/SECRET_KEY'
   const didPath = root + '/DID'
@@ -43,7 +41,7 @@ const loadKeypair = async (): Promise<typeof EdKeypair> => {
   try {
     const secretKey = fs.readFileSync(keyPath).toString()
     const keypair = await EdKeypair.fromSecretKey(secretKey, { format: "base64pad" })
-    const did = didTransformers.publicKeyBytesToDid(keypair.publicKey, "ed25519")
+    const did = ucans.publicKeyBytesToDid(keypair.publicKey, "ed25519")
 
     console.log(`👋 Welcome back ${did}`)
 
@@ -51,8 +49,8 @@ const loadKeypair = async (): Promise<typeof EdKeypair> => {
   } catch {
 
     const keypair = await EdKeypair.create({ exportable: true })
-    const secretKey = uint8arrays.toString(keypair.secretKey, "base64pad")
-    const did = didTransformers.publicKeyBytesToDid(keypair.publicKey, "ed25519")
+    const secretKey = await keypair.export()
+    const did = ucans.publicKeyBytesToDid(keypair.publicKey, "ed25519")
     fs.writeFileSync(keyPath, secretKey)
     fs.writeFileSync(didPath, did)
 
