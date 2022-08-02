@@ -6,28 +6,14 @@ import { EdKeypair } from 'ucans/keypair/ed25519'
 import * as commentary from './commentary'
 import { roomCapability } from './capability'
 
-// TODO: Fill in with actual DID
-const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
-
 const main = async () => {
   const args: string[] = process.argv.slice(2);
 
   const keypair = await loadKeypair()
 
   if (args.length === 0) {
-    const cap = roomCapability("registry")
-    const expiration = Math.floor(Date.now() / 1000) + 3600
-
-    // emit UCAN for registry
-    const registryUcan = await ucans.Builder.create()
-      .issuedBy(keypair)
-      .toAudience(CRUSTERMZ_DID)
-      .withExpiration(expiration)
-      .claimCapability(cap)
-      .build()
-
-      const token = ucans.encode(registryUcan)
-      console.log(token)
+    const token = await createUcan(keypair, 'registry')
+    console.log(token)
 
   } else {
     const route = args[0]
@@ -70,8 +56,39 @@ const loadKeypair = async (): Promise<EdKeypair> => {
     console.log("👋 Welcome adventurer.")
     console.log(`🆔 We will know you as ${did} going forward.`)
 
-    return keypair 
+    return keypair
   }
+}
+
+
+// UCAN
+
+const createUcan = async (
+  keypair: EdKeypair,
+  room: string,
+  options: {
+    notBefore: number,
+    expiration: number
+  } = {
+      notBefore: Math.floor(Date.now() / 1000) - 30,
+      expiration: Math.floor(Date.now() / 1000) + 3600
+    }
+): Promise<string> => {
+  const { expiration, notBefore } = options
+
+  // TODO: Fill in with actual DID
+  const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
+  const cap = roomCapability(room)
+
+  const registryUcan = await ucans.Builder.create()
+    .issuedBy(keypair)
+    .toAudience(CRUSTERMZ_DID)
+    .withNotBefore(notBefore)
+    .withExpiration(expiration)
+    .claimCapability(cap)
+    .build()
+
+  return ucans.encode(registryUcan)
 }
 
 main()
