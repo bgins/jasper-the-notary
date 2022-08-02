@@ -1,5 +1,5 @@
 DID
 SECRET_KEY
 
-index.js
+build/
 node_modules/
