@@ -2,9 +2,10 @@ import fs from 'fs'
 import path from 'path'
 import * as ucans from 'ucans'
 import { EdKeypair } from 'ucans/keypair/ed25519'
+import type { Ucan } from 'ucans'
 
 import * as commentary from './commentary'
-import { roomCapability } from './capability'
+import { RoomCapability, roomCapability, ROOM_SEMANTICS } from './capability'
 
 const main = async () => {
   const args: string[] = process.argv.slice(2);
@@ -12,12 +13,29 @@ const main = async () => {
   const keypair = await loadKeypair()
 
   if (args.length === 0) {
-    const token = await createUcan(keypair, 'registry')
+    const token = await createRegistryUcan(keypair)
     console.log(token)
 
   } else {
-    const route = args[0]
-    const proof = args[1]
+    const proofToken = args[0]
+
+    console.log('proof token', proofToken)
+
+    if (!proofToken) {
+      console.log("Hey! I'll need a UCAN for proof. Ask CrasterZM about it.")
+      return
+    }
+
+    const proof = await ucans.validate(proofToken)
+    const roomCap = proof.payload.att[0]
+
+    if (roomCap) {
+      const token = await createUcan(keypair, roomCap, proof)
+
+      console.log("open room with", token)
+    }
+
+
 
     // check proof
 
@@ -63,22 +81,21 @@ const loadKeypair = async (): Promise<EdKeypair> => {
 
 // UCAN
 
-const createUcan = async (
+const createRegistryUcan = async (
   keypair: EdKeypair,
-  room: string,
   options: {
     notBefore: number,
     expiration: number
   } = {
       notBefore: Math.floor(Date.now() / 1000) - 30,
-      expiration: Math.floor(Date.now() / 1000) + 3600
+      expiration: Math.floor(Date.now() / 1000) + 3600000
     }
 ): Promise<string> => {
   const { expiration, notBefore } = options
 
   // TODO: Fill in with actual DID
   const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
-  const cap = roomCapability(room)
+  const cap = roomCapability('registry')
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
@@ -86,6 +103,35 @@ const createUcan = async (
     .withNotBefore(notBefore)
     .withExpiration(expiration)
     .claimCapability(cap)
+    .build()
+
+  return ucans.encode(registryUcan)
+}
+
+
+const createUcan = async (
+  keypair: EdKeypair,
+  capability: RoomCapability,
+  proof: Ucan,
+  options: {
+    notBefore: number,
+    expiration: number,
+  } = {
+      notBefore: Math.floor(Date.now() / 1000) - 30,
+      expiration: Math.floor(Date.now() / 1000) + 3600000,
+    }
+): Promise<string> => {
+  const { expiration, notBefore } = options
+
+  // TODO: Fill in with actual DID
+  const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
+
+  const registryUcan = await ucans.Builder.create()
+    .issuedBy(keypair)
+    .toAudience(CRUSTERMZ_DID)
+    .withNotBefore(notBefore)
+    .withExpiration(expiration)
+    .delegateCapability(capability, { ucan: proof, capability }, ROOM_SEMANTICS)
     .build()
 
   return ucans.encode(registryUcan)
