@@ -6,20 +6,20 @@ import type { Ability } from "ucans/capability/ability"
 import type { ResourcePointer } from "ucans/capability/resource-pointer"
 
 
-export interface RoomCapability {
+export interface GateCapability {
   with: ResourcePointer
   can: Ability
 }
 
-export const ENTER_ABILITY: Ability = { namespace: "room", segments: [ "ENTER" ] }
+export const UNLOCK_ABILITY: Ability = { namespace: "gate", segments: [ "UNLOCK" ] }
 
-export const ROOM_SEMANTICS: DelegationSemantics = {
+export const GATE_SEMANTICS: DelegationSemantics = {
 
   canDelegateResource(parentResource, resource) {
-    if (parentResource.scheme !== "room") {
+    if (parentResource.scheme !== "key") {
       return false
     }
-    if (resource.scheme !== "room") {
+    if (resource.scheme !== "key") {
       return false
     }
     return parentResource.hierPart === resource.hierPart
@@ -32,30 +32,30 @@ export const ROOM_SEMANTICS: DelegationSemantics = {
     if (ability === SUPERUSER) {
       return false
     }
-    return parentAbility.namespace === "room"
+    return parentAbility.namespace === "gate"
       && parentAbility.segments.length === 1
-      && parentAbility.segments[0] === "ENTER"
-      && ability.namespace === "room"
+      && parentAbility.segments[0] === "UNLOCK"
+      && ability.namespace === "gate"
       && ability.segments.length === 1
-      && ability.segments[0] === "ENTER"
+      && ability.segments[0] === "UNLOCK"
   }
 
 }
 
 
-export function roomResourcePointer(roomName: string): ResourcePointer {
-  return { scheme: "room", hierPart: roomName}
+export function keyResourcePointer(keyName: string): ResourcePointer {
+  return { scheme: "key", hierPart: keyName}
 }
 
-export function roomCapability(roomName: string): Capability {
+export function gateCapability(keyName: string): Capability {
   return {
-    with: roomResourcePointer(roomName),
-    can: ENTER_ABILITY
+    with: keyResourcePointer(keyName),
+    can: UNLOCK_ABILITY
   }
 }
 
-export async function * roomCapabilities(ucan: Ucan): AsyncIterable<{ capability: RoomCapability; rootIssuer: string }> {
-  for await (const delegationChain of delegationChains(ROOM_SEMANTICS, ucan)) {
+export async function * gateCapabilities(ucan: Ucan): AsyncIterable<{ capability: GateCapability; rootIssuer: string }> {
+  for await (const delegationChain of delegationChains(GATE_SEMANTICS, ucan)) {
     if (delegationChain instanceof Error || "ownershipDID" in delegationChain) {
       continue
     }

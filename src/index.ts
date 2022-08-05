@@ -5,7 +5,7 @@ import { EdKeypair } from 'ucans/keypair/ed25519'
 import type { Ucan } from 'ucans'
 
 import * as commentary from './commentary'
-import { RoomCapability, roomCapability, ROOM_SEMANTICS } from './capability'
+import { GateCapability, gateCapability, GATE_SEMANTICS } from './capability'
 
 const main = async () => {
   const args: string[] = process.argv.slice(2);
@@ -95,7 +95,7 @@ const createRegistryUcan = async (
 
   // TODO: Fill in with actual DID
   const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
-  const cap = roomCapability('registry')
+  const cap = gateCapability('registry')
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
@@ -111,7 +111,7 @@ const createRegistryUcan = async (
 
 const createUcan = async (
   keypair: EdKeypair,
-  capability: RoomCapability,
+  capability: GateCapability,
   proof: Ucan,
   options: {
     notBefore: number,
@@ -131,7 +131,7 @@ const createUcan = async (
     .toAudience(CRUSTERMZ_DID)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
-    .delegateCapability(capability, { ucan: proof, capability }, ROOM_SEMANTICS)
+    .delegateCapability(capability, { ucan: proof, capability }, GATE_SEMANTICS)
     .build()
 
   return ucans.encode(registryUcan)
