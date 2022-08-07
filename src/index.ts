@@ -17,34 +17,30 @@ const main = async () => {
     console.log(token)
 
   } else {
-    const proofToken = args[0]
+    const gateName = args[0]
+    const proofToken = args[1]
 
-    console.log('proof token', proofToken)
-
-    if (!proofToken) {
-      console.log("Hey! I'll need a UCAN for proof. Ask CrasterZM about it.")
+    if (!gateName || !proofToken) {
+      console.log("Hey! I'll need a gate name and a UCAN for proof. When you have both of them, ask for my help with\n")
+      console.log("  npm run auth <gate-name> <proof-ucan>\n")
+      console.log("Ask CrasterZM if you need the UCAN.")
       return
     }
 
     const proof = await ucans.validate(proofToken)
-    const roomCap = proof.payload.att[0]
+    const gateCap = proof.payload.att[0]
 
-    if (roomCap) {
-      const token = await createUcan(keypair, roomCap, proof)
+    if (gateName && gateCap) {
+      const token = await createUcan(gateName, gateCap, keypair, proof)
 
-      console.log("open room with", token)
+      // commentary
+
+      console.log("Open gate your gate with this token:\n\n", token)
+    } else {
+      console.error(`Unable to create a token for gate name ${gateName} with capability ${gateCap}`)
     }
 
-
-
-    // check proof
-
-    // comment
-
-    // emit UCAN
   }
-
-  // console.log("keypair", keypair)
 }
 
 
@@ -94,12 +90,12 @@ const createRegistryUcan = async (
   const { expiration, notBefore } = options
 
   // TODO: Fill in with actual DID
-  const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
+  const CRUSTERZM_DID = 'did:key:z6MkfwqiTV6J6cDuMJr3Asfyz1MaU1ekpDECPxcAMa7YKLtB'
   const cap = gateCapability('registry')
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
-    .toAudience(CRUSTERMZ_DID)
+    .toAudience(CRUSTERZM_DID)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
     .claimCapability(cap)
@@ -110,8 +106,9 @@ const createRegistryUcan = async (
 
 
 const createUcan = async (
-  keypair: EdKeypair,
+  gateName: String,
   capability: GateCapability,
+  keypair: EdKeypair,
   proof: Ucan,
   options: {
     notBefore: number,
@@ -124,13 +121,14 @@ const createUcan = async (
   const { expiration, notBefore } = options
 
   // TODO: Fill in with actual DID
-  const CRUSTERMZ_DID = 'did:key:z6MkfpzXqxbQ3BsTfuwuWKC7iqo3GyQus8fHNQczv3pAjznw'
+  const CRUSTERZM_DID = 'did:key:z6MkwDK3M4PxU1FqcSt4quXghquH1MoWXGzTrNkNWTSy2NLD'
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
-    .toAudience(CRUSTERMZ_DID)
+    .toAudience(CRUSTERZM_DID)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
+    .withFact({gate: gateName})
     .delegateCapability(capability, { ucan: proof, capability }, GATE_SEMANTICS)
     .build()
 
