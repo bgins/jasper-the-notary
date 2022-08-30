@@ -98,6 +98,7 @@ const createRegistryUcan = async (
     .toAudience(CRUSTERZM_DID)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
+    .withFact({gate: "registry"})
     .claimCapability(cap)
     .build()
 
@@ -115,7 +116,7 @@ const createUcan = async (
     expiration: number,
   } = {
       notBefore: Math.floor(Date.now() / 1000) - 30,
-      expiration: Math.floor(Date.now() / 1000) + 3600000,
+      expiration: Math.floor(Date.now() / 1000) + 3000,
     }
 ): Promise<string> => {
   const { expiration, notBefore } = options
