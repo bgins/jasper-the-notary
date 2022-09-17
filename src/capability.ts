@@ -6,14 +6,14 @@ import type { Ability } from "ucans/capability/ability"
 import type { ResourcePointer } from "ucans/capability/resource-pointer"
 
 
-export interface GateCapability {
+export interface DoorCapability {
   with: ResourcePointer
   can: Ability
 }
 
-export const UNLOCK_ABILITY: Ability = { namespace: "gate", segments: [ "UNLOCK" ] }
+export const UNLOCK_ABILITY: Ability = { namespace: "door", segments: [ "OPEN" ] }
 
-export const GATE_SEMANTICS: DelegationSemantics = {
+export const DOOR_SEMANTICS: DelegationSemantics = {
 
   canDelegateResource(parentResource, resource) {
     if (parentResource.scheme !== "key") {
@@ -32,12 +32,12 @@ export const GATE_SEMANTICS: DelegationSemantics = {
     if (ability === SUPERUSER) {
       return false
     }
-    return parentAbility.namespace === "gate"
+    return parentAbility.namespace === "door"
       && parentAbility.segments.length === 1
-      && parentAbility.segments[0] === "UNLOCK"
-      && ability.namespace === "gate"
+      && parentAbility.segments[0] === "OPEN"
+      && ability.namespace === "door"
       && ability.segments.length === 1
-      && ability.segments[0] === "UNLOCK"
+      && ability.segments[0] === "OPEN"
   }
 
 }
@@ -47,15 +47,15 @@ export function keyResourcePointer(keyName: string): ResourcePointer {
   return { scheme: "key", hierPart: keyName}
 }
 
-export function gateCapability(keyName: string): Capability {
+export function doorCapability(keyName: string): Capability {
   return {
     with: keyResourcePointer(keyName),
     can: UNLOCK_ABILITY
   }
 }
 
-export async function * gateCapabilities(ucan: Ucan): AsyncIterable<{ capability: GateCapability; rootIssuer: string }> {
-  for await (const delegationChain of delegationChains(GATE_SEMANTICS, ucan)) {
+export async function * doorCapabilities(ucan: Ucan): AsyncIterable<{ capability: DoorCapability; rootIssuer: string }> {
+  for await (const delegationChain of delegationChains(DOOR_SEMANTICS, ucan)) {
     if (delegationChain instanceof Error || "ownershipDID" in delegationChain) {
       continue
     }

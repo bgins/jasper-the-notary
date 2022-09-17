@@ -5,7 +5,7 @@ import { EdKeypair } from 'ucans/keypair/ed25519'
 import type { Ucan } from 'ucans'
 
 import * as commentary from './commentary'
-import { GateCapability, gateCapability, GATE_SEMANTICS } from './capability'
+import { DoorCapability, doorCapability, DOOR_SEMANTICS } from './capability'
 
 const main = async () => {
   const args: string[] = process.argv.slice(2);
@@ -17,27 +17,27 @@ const main = async () => {
     console.log(token)
 
   } else {
-    const gateName = args[0]
+    const doorName = args[0]
     const proofToken = args[1]
 
-    if (!gateName || !proofToken) {
-      console.log("Hey! I'll need a gate name and a UCAN for proof. When you have both of them, ask for my help with\n")
-      console.log("  npm run auth <gate-name> <proof-ucan>\n")
-      console.log("Ask CrasterZM if you need the UCAN.")
+    if (!doorName || !proofToken) {
+      console.log("Hey! I'll need a door name and a UCAN for proof. When you have both of them, ask for my help with\n")
+      console.log("  npm run auth <door-name> <proof-ucan>\n")
+      console.log("Ask BLINKERTON_LKM if you need the UCAN.")
       return
     }
 
     const proof = await ucans.validate(proofToken)
-    const gateCap = proof.payload.att[0]
+    const doorCap = proof.payload.att[0]
 
-    if (gateName && gateCap) {
-      const token = await createUcan(gateName, gateCap, keypair, proof)
+    if (doorName && doorCap) {
+      const token = await createUcan(doorName, doorCap, keypair, proof)
 
       // commentary
 
-      console.log("Open gate your gate with this token:\n\n", token)
+      console.log(`Open ${doorName} with this token:\n\n`, token)
     } else {
-      console.error(`Unable to create a token for gate name ${gateName} with capability ${gateCap}`)
+      console.error(`Unable to create a token for door name ${doorName} with capability ${doorCap}`)
     }
 
   }
@@ -91,14 +91,14 @@ const createRegistryUcan = async (
 
   // TODO: Fill in with actual DID
   const CRUSTERZM_DID = 'did:key:z6MkfwqiTV6J6cDuMJr3Asfyz1MaU1ekpDECPxcAMa7YKLtB'
-  const cap = gateCapability('registry')
+  const cap = doorCapability('registry')
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
     .toAudience(CRUSTERZM_DID)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
-    .withFact({gate: "registry"})
+    .withFact({door: "registry"})
     .claimCapability(cap)
     .build()
 
@@ -107,8 +107,8 @@ const createRegistryUcan = async (
 
 
 const createUcan = async (
-  gateName: String,
-  capability: GateCapability,
+  doorName: String,
+  capability: DoorCapability,
   keypair: EdKeypair,
   proof: Ucan,
   options: {
@@ -129,8 +129,8 @@ const createUcan = async (
     .toAudience(CRUSTERZM_DID)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
-    .withFact({gate: gateName})
-    .delegateCapability(capability, { ucan: proof, capability }, GATE_SEMANTICS)
+    .withFact({door: doorName})
+    .delegateCapability(capability, { ucan: proof, capability }, DOOR_SEMANTICS)
     .build()
 
   return ucans.encode(registryUcan)
