@@ -35,7 +35,7 @@ const main = async () => {
 
       // commentary
 
-      console.log(`Open ${doorName} with this token:\n\n`, token)
+      console.log(`Open /${doorName} with this token:\n\n`, token)
     } else {
       console.error(`Unable to create a token for door name ${doorName} with capability ${doorCap}`)
     }
@@ -56,7 +56,7 @@ const loadKeypair = async (): Promise<EdKeypair> => {
     const keypair = await EdKeypair.fromSecretKey(secretKey, { format: "base64pad" })
     const did = ucans.publicKeyBytesToDid(keypair.publicKey, "ed25519")
 
-    console.log(`👋 Welcome back ${did}`)
+    console.log(`👋 Welcome back ${did}\n`)
 
     return keypair
   } catch {
@@ -67,8 +67,10 @@ const loadKeypair = async (): Promise<EdKeypair> => {
     fs.writeFileSync(keyPath, secretKey)
     fs.writeFileSync(didPath, did)
 
-    console.log("👋 Welcome adventurer.")
-    console.log(`🆔 We will know you as ${did} going forward.`)
+    console.log("👋 Great! Let's get you ready for registration.")
+    console.log(`🆔 Your DID is ${did}`)
+    console.log("📁 I've created a DID and a SECRET_KEY for you. Keep the SECRET_KEY between us, we don\'t want that getting out.")
+    console.log("🎫 Here's your UCAN for the /registry:\n")
 
     return keypair
   }
