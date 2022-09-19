@@ -4,9 +4,9 @@ import * as ucans from 'ucans'
 import { EdKeypair } from 'ucans/keypair/ed25519'
 import type { Ucan } from 'ucans'
 
-import * as commentary from './commentary'
 import { DoorCapability, doorCapability, DOOR_SEMANTICS } from './capability'
 import { exit } from 'process'
+import { getComment } from './commentary'
 
 const main = async () => {
   const args: string[] = process.argv.slice(2);
@@ -16,16 +16,16 @@ const main = async () => {
 
   if (args.length === 0) {
     const token = await createRegistryUcan(keypair, serverDid)
-    console.log(token)
+    console.log('\n', token)
 
   } else {
     const doorName = args[0]
     const proofToken = args[1]
 
     if (!doorName || !proofToken) {
-      console.log("Hey! I'll need a door name and a UCAN for proof. When you have both of them, ask for my help with\n")
+      console.log("\nHey! I'll need a door name and a UCAN for proof. When you have both of them, ask for my help with\n")
       console.log("  npm run auth <door-name> <proof-ucan>\n")
-      console.log("Ask BLINKERTON_LKM if you need the UCAN.")
+      console.log("Ask BLINKERTON_LKM if you need a UCAN.")
       return
     }
 
@@ -37,9 +37,10 @@ const main = async () => {
 
       // commentary
 
-      console.log(`Open /${doorName} with this token:\n\n`, token)
+      console.log(getComment(), '\n')
+      console.log(`Open the /${doorName} door with this token:\n\n`, token)
     } else {
-      console.error(`Unable to create a token for door name ${doorName} with capability ${doorCap}`)
+      console.error(`\nUnable to create a token for door name ${doorName} with capability ${doorCap}`)
     }
 
   }
@@ -58,7 +59,7 @@ const loadKeypair = async (): Promise<EdKeypair> => {
     const keypair = await EdKeypair.fromSecretKey(secretKey, { format: "base64pad" })
     const did = ucans.publicKeyBytesToDid(keypair.publicKey, "ed25519")
 
-    console.log(`👋 Welcome back ${did}\n`)
+    console.log(`👋 Welcome back ${did}`)
 
     return keypair
   } catch {
@@ -72,7 +73,7 @@ const loadKeypair = async (): Promise<EdKeypair> => {
     console.log("👋 Great! Let's get you ready for registration.")
     console.log(`🆔 Your DID is ${did}`)
     console.log("📁 I've created a DID and a SECRET_KEY for you. Keep the SECRET_KEY between us, we don\'t want that getting out.")
-    console.log("🎫 Here's your UCAN for the /registry:\n")
+    console.log("🎫 Here's your UCAN for the /registry:")
 
     return keypair
   }
