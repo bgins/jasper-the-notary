@@ -36,4 +36,4 @@ npm run auth <door-name> <proof-ucan>
 
 I'll take those and create a UCAN for the door you request.
 
-Thank you for choosing Jasper the Notary! We provide the highest quality signatures and verifications. With Jasper on your team, UCAN open all doors and ever be winning. 🙌
+Thank you for choosing Jasper the Notary! We provide the highest quality signatures and verifications. With Jasper on your team, UCAN open all doors and always be winning. 🙌
