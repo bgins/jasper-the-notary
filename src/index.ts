@@ -96,17 +96,10 @@ const loadServerDid = (): string => {
 
 const createRegistryUcan = async (
   keypair: EdKeypair,
-  serverDid: string,
-  options: {
-    notBefore: number,
-    expiration: number
-  } = {
-      notBefore: Math.floor(Date.now() / 1000) - 30,
-      expiration: Math.floor(Date.now() / 1000) + 3600000
-    }
+  serverDid: string
 ): Promise<string> => {
-  const { expiration, notBefore } = options
-
+  const notBefore =  Math.floor(Date.now() / 1000) - 30
+  const expiration = Math.floor(Date.now() / 1000) + 600
   const cap = doorCapability('registry')
 
   const registryUcan = await ucans.Builder.create()
@@ -127,16 +120,10 @@ const createUcan = async (
   capability: DoorCapability,
   keypair: EdKeypair,
   serverDid: string,
-  proof: Ucan,
-  options: {
-    notBefore: number,
-    expiration: number,
-  } = {
-      notBefore: Math.floor(Date.now() / 1000) - 30,
-      expiration: Math.floor(Date.now() / 1000) + 3000,
-    }
+  proof: Ucan
 ): Promise<string> => {
-  const { expiration, notBefore } = options
+  const notBefore =  Math.floor(Date.now() / 1000) - 30
+  const expiration = Math.floor(Date.now() / 1000) + 600
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
