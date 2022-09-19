@@ -1,5 +1,6 @@
 DID
 SECRET_KEY
+BLINKERTON_LKM
 
 build/
 node_modules/

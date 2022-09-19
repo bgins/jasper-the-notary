@@ -6,14 +6,16 @@ import type { Ucan } from 'ucans'
 
 import * as commentary from './commentary'
 import { DoorCapability, doorCapability, DOOR_SEMANTICS } from './capability'
+import { exit } from 'process'
 
 const main = async () => {
   const args: string[] = process.argv.slice(2);
 
+  const serverDid = loadServerDid()
   const keypair = await loadKeypair()
 
   if (args.length === 0) {
-    const token = await createRegistryUcan(keypair)
+    const token = await createRegistryUcan(keypair, serverDid)
     console.log(token)
 
   } else {
@@ -31,7 +33,7 @@ const main = async () => {
     const doorCap = proof.payload.att[0]
 
     if (doorName && doorCap) {
-      const token = await createUcan(doorName, doorCap, keypair, proof)
+      const token = await createUcan(doorName, doorCap, keypair, serverDid, proof)
 
       // commentary
 
@@ -76,11 +78,25 @@ const loadKeypair = async (): Promise<EdKeypair> => {
   }
 }
 
+const loadServerDid = (): string => {
+  try {
+    const root = path.resolve(__dirname, '..')
+    const serverDidPath = root + '/BLINKERTON_LKM'
+    const serverDid = fs.readFileSync(serverDidPath).toString()
+
+    return serverDid
+  } catch {
+    console.log("🙈 Where is BLINKERTON_LKM? We'll need that file to get started.")
+
+    exit(1)
+  }
+}
 
 // UCAN
 
 const createRegistryUcan = async (
   keypair: EdKeypair,
+  serverDid: string,
   options: {
     notBefore: number,
     expiration: number
@@ -91,13 +107,11 @@ const createRegistryUcan = async (
 ): Promise<string> => {
   const { expiration, notBefore } = options
 
-  // TODO: Fill in with actual DID
-  const CRUSTERZM_DID = 'did:key:z6MkfwqiTV6J6cDuMJr3Asfyz1MaU1ekpDECPxcAMa7YKLtB'
   const cap = doorCapability('registry')
 
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
-    .toAudience(CRUSTERZM_DID)
+    .toAudience(serverDid)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
     .withFact({door: "registry"})
@@ -112,6 +126,7 @@ const createUcan = async (
   doorName: String,
   capability: DoorCapability,
   keypair: EdKeypair,
+  serverDid: string,
   proof: Ucan,
   options: {
     notBefore: number,
@@ -123,12 +138,9 @@ const createUcan = async (
 ): Promise<string> => {
   const { expiration, notBefore } = options
 
-  // TODO: Fill in with actual DID
-  const CRUSTERZM_DID = 'did:key:z6MkwDK3M4PxU1FqcSt4quXghquH1MoWXGzTrNkNWTSy2NLD'
-
   const registryUcan = await ucans.Builder.create()
     .issuedBy(keypair)
-    .toAudience(CRUSTERZM_DID)
+    .toAudience(serverDid)
     .withNotBefore(notBefore)
     .withExpiration(expiration)
     .withFact({door: doorName})
