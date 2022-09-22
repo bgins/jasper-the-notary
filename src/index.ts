@@ -38,7 +38,7 @@ const main = async () => {
       // commentary
 
       console.log(getComment(), '\n')
-      console.log(`Open the /${doorName} door with this token:\n\n`, token)
+      console.log(`If it exists, you'll be able to open the /${doorName} door with this token:\n\n`, token)
     } else {
       console.error(`\nUnable to create a token for door name ${doorName} with capability ${doorCap}`)
     }
