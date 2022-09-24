@@ -54,7 +54,7 @@ const critiques: Commentary = [
 const encouragement: Commentary = [
   '✨ You\'re doing great!',
   '🔥 Wow, never seen anyone speed run like this before!',
-  '👏 Fantastic work on that last out!',
+  '👏 Fantastic work on that last one!',
   '💯 Oh this next one is so good.',
   '💃 Ole Blinky can\'t stump you!',
   '💪 Don\'t sweat it, you got this one.',
