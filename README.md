@@ -26,7 +26,7 @@ Go ahead and create a file named `BLINKERTON_LKM` and copy Ole Blinky's DID into
 npm run auth
 ```
 
-That's the UCAN you'll need at the `/registry`. Just set it as a `Bearer` token and make a `GET` request with an HTTP client of your choosing.
+That's the UCAN you'll need at the `/registry`. Just set it as a `Bearer` token and make a `GET` request with an HTTP client of your choosing. I'd recommend Insomnia or Postman to help you track your progress through the Halls of Authorization, but you could also use `curl`, write a `bash` script, or build a quick webpage and use `fetch`.
 
 Each time you need a UCAN in the future, I'll need the door name and a proof UCAN that Blinky will give you:
 
