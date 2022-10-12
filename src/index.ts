@@ -83,7 +83,7 @@ const loadServerDid = (): string => {
   try {
     const root = path.resolve(__dirname, '..')
     const serverDidPath = root + '/BLINKERTON_LKM'
-    const serverDid = fs.readFileSync(serverDidPath).toString()
+    const serverDid = fs.readFileSync(serverDidPath).toString().trim()
 
     return serverDid
   } catch {
