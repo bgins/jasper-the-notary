@@ -6,7 +6,7 @@ Hi there! My name is Jasper, and I am a notary and general assistant.
 
 You've probably come here because you want to find your way through the Halls of Authorization. And let me guess -- BLINKERTON_LKM sent you? 
 
-I can help you create to create a DID and to create and sign UCANs with it. To get started, you'll need to pay my fees:
+I can help you create a DID and to create and sign UCANs with it. To get started, you'll need to pay my fees:
 
 ```
 npm install
