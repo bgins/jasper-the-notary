@@ -37,3 +37,7 @@ npm run auth <door-name> <proof-ucan>
 I'll take those and create a UCAN for the door you request. If you inspect the UCAN, you'll see that it includes a door fact with the name of the door you guessed. Door facts are required to open doors, but they aren't worth much if you guess a door that doesn't exist.
 
 Thank you for choosing Jasper the Notary! We provide the highest quality signatures and verifications. With Jasper on your team, UCAN open all doors and always be winning. 🙌
+
+---
+
+_Come by and discuss UCAN Adventure on the [Fission Discord server](https://fission.codes/discord) in the #ucan channel._
